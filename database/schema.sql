@@ -7,7 +7,8 @@ CREATE TABLE hotels (
     name VARCHAR(150) NOT NULL,
     location VARCHAR(100) NOT NULL,
     description VARCHAR(1000),
-    amenities VARCHAR(500)
+    amenities VARCHAR(500),
+    image_url VARCHAR(255)
 );
 
 CREATE TABLE rooms (

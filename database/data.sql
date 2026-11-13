@@ -1,10 +1,16 @@
-INSERT INTO hotels (name, location, description, amenities) VALUES
-    ('Seabreeze Palm Resort', 'Goa', 'A relaxed beachside resort with easy access to the shore.', 'WiFi, Pool, Breakfast, Parking'),
-    ('Coconut Grove Inn', 'Goa', 'A cozy inn offering a quiet stay near local markets.', 'WiFi, Breakfast, Parking'),
-    ('Harbor View Suites', 'Mumbai', 'A modern hotel with comfortable rooms and sweeping harbor views.', 'WiFi, Gym, Breakfast, Parking'),
-    ('Capital Courtyard Hotel', 'Delhi', 'A welcoming city hotel close to major business and cultural districts.', 'WiFi, Restaurant, Gym, Parking'),
-    ('Amber Fort Residency', 'Jaipur', 'A traditional-style retreat located near Jaipur historic sights.', 'WiFi, Pool, Breakfast, Parking'),
-    ('Garden City Stay', 'Bengaluru', 'A contemporary hotel offering a peaceful base in the garden city.', 'WiFi, Breakfast, Gym, Parking');
+INSERT INTO hotels (name, location, description, amenities, image_url) VALUES
+    ('Seabreeze Palm Resort', 'Goa', 'A relaxed beachside resort with easy access to the shore.', 'WiFi, Pool, Breakfast, Parking', '/images/hotels/seabreeze-palm-resort.jpg'),
+    ('Coconut Grove Inn', 'Goa', 'A cozy inn offering a quiet stay near local markets.', 'WiFi, Breakfast, Parking', '/images/hotels/coconut-grove-inn.jpg'),
+    ('Harbor View Suites', 'Mumbai', 'A modern hotel with comfortable rooms and sweeping harbor views.', 'WiFi, Gym, Breakfast, Parking', '/images/hotels/harbor-view-suites.jpg'),
+    ('Capital Courtyard Hotel', 'Delhi', 'A welcoming city hotel close to major business and cultural districts.', 'WiFi, Restaurant, Gym, Parking', '/images/hotels/capital-courtyard-hotel.jpg'),
+    ('Amber Fort Residency', 'Jaipur', 'A traditional-style retreat located near Jaipur historic sights.', 'WiFi, Pool, Breakfast, Parking', '/images/hotels/amber-fort-residency.jpg'),
+    ('Garden City Stay', 'Bengaluru', 'A contemporary hotel offering a peaceful base in the garden city.', 'WiFi, Breakfast, Gym, Parking', '/images/hotels/garden-city-stay.jpg'),
+    ('Lake Palace Retreat', 'Udaipur', 'A lakeside heritage stay with sunset views across the water.', 'WiFi, Pool, Spa, Breakfast', '/images/hotels/lake-palace-retreat.jpg'),
+    ('Backwater Haven', 'Kochi', 'A quiet stay beside the backwaters with calm views of the waterways.', 'WiFi, Breakfast, Parking, Pool', '/images/hotels/backwater-haven.jpg'),
+    ('Pine Valley Lodge', 'Manali', 'A wooden lodge in the pine forest near the snow line.', 'WiFi, Fireplace, Breakfast, Parking', '/images/hotels/pine-valley-lodge.jpg'),
+    ('Ganga View Resort', 'Rishikesh', 'A riverside resort with peaceful yoga mornings by the Ganga.', 'WiFi, Yoga, Breakfast, Parking', '/images/hotels/ganga-view-resort.jpg'),
+    ('Deccan Heights Hotel', 'Hyderabad', 'A modern business hotel with wide skyline views.', 'WiFi, Gym, Restaurant, Parking', '/images/hotels/deccan-heights-hotel.jpg'),
+    ('Marina Bay Hotel', 'Chennai', 'A coastal hotel a short walk from the beach.', 'WiFi, Pool, Gym, Breakfast', '/images/hotels/marina-bay-hotel.jpg');
 
 INSERT INTO rooms (hotel_id, room_type, price_per_night, total_rooms) VALUES
     (1, 'Deluxe', 4500.00, 5),
@@ -12,4 +18,10 @@ INSERT INTO rooms (hotel_id, room_type, price_per_night, total_rooms) VALUES
     (3, 'Deluxe', 6500.00, 4),
     (4, 'Standard', 3200.00, 6),
     (5, 'Deluxe', 3800.00, 1),
-    (6, 'Standard', 3000.00, 5);
+    (6, 'Standard', 3000.00, 5),
+    (7, 'Deluxe', 5200.00, 4),
+    (8, 'Deluxe', 3600.00, 5),
+    (9, 'Deluxe', 4100.00, 3),
+    (10, 'Deluxe', 3400.00, 4),
+    (11, 'Deluxe', 3900.00, 6),
+    (12, 'Deluxe', 4300.00, 4);

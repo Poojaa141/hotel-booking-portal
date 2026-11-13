@@ -9,6 +9,7 @@ public class HotelResponse {
     private String name;
     private String location;
     private String description;
+    private String imageUrl;
     private List<String> amenities;
     private Long roomId;
     private String roomType;
@@ -21,13 +22,15 @@ public class HotelResponse {
     public HotelResponse() {
     }
 
-    public HotelResponse(Long id, String name, String location, String description, List<String> amenities,
+    public HotelResponse(Long id, String name, String location, String description, String imageUrl,
+            List<String> amenities,
             Long roomId, String roomType, BigDecimal pricePerNight, int totalRooms, int roomsLeft,
             boolean available) {
         this.id = id;
         this.name = name;
         this.location = location;
         this.description = description;
+        this.imageUrl = imageUrl;
         this.amenities = amenities;
         this.roomId = roomId;
         this.roomType = roomType;
@@ -67,6 +70,14 @@ public class HotelResponse {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public List<String> getAmenities() {

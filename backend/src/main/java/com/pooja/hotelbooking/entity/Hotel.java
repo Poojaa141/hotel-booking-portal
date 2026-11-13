@@ -27,6 +27,9 @@ public class Hotel {
     @Column(length = 500)
     private String amenities;
 
+    @Column(name = "image_url", length = 255)
+    private String imageUrl;
+
     public Long getId() {
         return id;
     }
@@ -65,5 +68,13 @@ public class Hotel {
 
     public void setAmenities(String amenities) {
         this.amenities = amenities;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

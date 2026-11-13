@@ -80,6 +80,7 @@ public class HotelService {
                 hotel.getName(),
                 hotel.getLocation(),
                 hotel.getDescription(),
+                hotel.getImageUrl(),
                 amenities,
                 room.getId(),
                 room.getRoomType(),
