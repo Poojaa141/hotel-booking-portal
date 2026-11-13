@@ -1,6 +1,7 @@
 package com.pooja.hotelbooking.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -16,6 +17,7 @@ import com.pooja.hotelbooking.dto.QuoteResponse;
 import com.pooja.hotelbooking.entity.Booking;
 import com.pooja.hotelbooking.entity.BookingStatus;
 import com.pooja.hotelbooking.entity.Room;
+import com.pooja.hotelbooking.exception.BadRequestException;
 import com.pooja.hotelbooking.exception.NotFoundException;
 import com.pooja.hotelbooking.exception.SoldOutException;
 import com.pooja.hotelbooking.repository.BookingRepository;
@@ -24,6 +26,9 @@ import com.pooja.hotelbooking.util.DateValidator;
 
 @Service
 public class BookingService {
+
+    private static final String BOOKING_NOT_FOUND_MESSAGE =
+            "Booking not found. Please check your reference and email";
 
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
@@ -84,21 +89,53 @@ public class BookingService {
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCreatedAt(LocalDateTime.now());
 
-        Booking savedBooking = bookingRepository.save(booking);
+        return toResponse(bookingRepository.save(booking));
+    }
+
+    @Transactional(readOnly = true)
+    public BookingResponse getBooking(String reference, String email) {
+        return toResponse(findBooking(reference, email));
+    }
+
+    @Transactional
+    public BookingResponse cancelBooking(String reference, String email) {
+        Booking booking = findBooking(reference, email);
+
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new BadRequestException("This booking is already cancelled");
+        }
+        if (booking.getCheckIn().isBefore(LocalDate.now())) {
+            throw new BadRequestException(
+                    "Cannot cancel a booking whose check-in date has already passed");
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        return toResponse(bookingRepository.save(booking));
+    }
+
+    private Booking findBooking(String reference, String email) {
+        String cleanReference = reference.trim().toUpperCase(Locale.ROOT);
+        String cleanEmail = email.trim().toLowerCase(Locale.ROOT);
+        return bookingRepository.findByBookingRefAndGuestEmail(cleanReference, cleanEmail)
+                .orElseThrow(() -> new NotFoundException(BOOKING_NOT_FOUND_MESSAGE));
+    }
+
+    private BookingResponse toResponse(Booking booking) {
+        Room room = booking.getRoom();
         return new BookingResponse(
-                savedBooking.getBookingRef(),
+                booking.getBookingRef(),
                 room.getHotel().getName(),
                 room.getHotel().getLocation(),
                 room.getRoomType(),
-                savedBooking.getGuestName(),
-                savedBooking.getGuestEmail(),
-                savedBooking.getCheckIn(),
-                savedBooking.getCheckOut(),
-                savedBooking.getNights(),
+                booking.getGuestName(),
+                booking.getGuestEmail(),
+                booking.getCheckIn(),
+                booking.getCheckOut(),
+                booking.getNights(),
                 room.getPricePerNight(),
-                savedBooking.getTotalAmount(),
-                savedBooking.getStatus(),
-                savedBooking.getCreatedAt());
+                booking.getTotalAmount(),
+                booking.getStatus(),
+                booking.getCreatedAt());
     }
 
     private String createBookingRef() {

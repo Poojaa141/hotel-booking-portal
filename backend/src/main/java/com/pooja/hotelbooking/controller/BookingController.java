@@ -5,9 +5,13 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import com.pooja.hotelbooking.dto.BookingRequest;
 import com.pooja.hotelbooking.dto.BookingResponse;
@@ -34,5 +38,15 @@ public class BookingController {
     public ResponseEntity<BookingResponse> createBooking(@Valid @RequestBody BookingRequest request) {
         BookingResponse response = bookingService.createBooking(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{ref}")
+    public BookingResponse getBooking(@PathVariable String ref, @RequestParam String email) {
+        return bookingService.getBooking(ref, email);
+    }
+
+    @PutMapping("/{ref}/cancel")
+    public BookingResponse cancelBooking(@PathVariable String ref, @RequestParam String email) {
+        return bookingService.cancelBooking(ref, email);
     }
 }
