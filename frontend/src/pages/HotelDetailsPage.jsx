@@ -26,6 +26,7 @@ function HotelDetailsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const checkIn = searchParams.get('checkIn') || ''
   const checkOut = searchParams.get('checkOut') || ''
+  const roomQuery = searchParams.get('room') || ''
   const [hotel, setHotel] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -60,14 +61,42 @@ function HotelDetailsPage() {
     }
   }, [id, checkIn, checkOut, refreshKey])
 
+  useEffect(() => {
+    if (!hotel) return
+
+    const roomExists = hotel.rooms.some((room) => String(room.roomId) === roomQuery)
+    if (roomExists) return
+
+    const firstAvailableRoom = hotel.rooms.find((room) => room.available)
+    if (!firstAvailableRoom && !roomQuery) return
+
+    const nextParams = new URLSearchParams(searchParams)
+    if (firstAvailableRoom) {
+      nextParams.set('room', String(firstAvailableRoom.roomId))
+    } else {
+      nextParams.delete('room')
+    }
+    setSearchParams(nextParams, { replace: true })
+  }, [hotel, roomQuery, searchParams, setSearchParams])
+
+  const selectedRoom = hotel?.rooms.find((room) => String(room.roomId) === roomQuery) || null
+
   function handleDatesChange(nextCheckIn, nextCheckOut) {
-    const nextParams = new URLSearchParams()
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('checkIn')
+    nextParams.delete('checkOut')
     if (nextCheckIn) {
       nextParams.set('checkIn', nextCheckIn)
     }
     if (nextCheckIn && nextCheckOut && nextCheckOut > nextCheckIn && nextCheckIn >= getToday()) {
       nextParams.set('checkOut', nextCheckOut)
     }
+    setSearchParams(nextParams, { replace: true })
+  }
+
+  function handleRoomSelect(roomId) {
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.set('room', String(roomId))
     setSearchParams(nextParams, { replace: true })
   }
 
@@ -115,16 +144,34 @@ function HotelDetailsPage() {
                   <h2>Amenities</h2>
                   <div className="details-amenities">{(hotel.amenities || []).map((amenity) => <span className="amenity-chip" key={amenity}>{amenity}</span>)}</div>
                 </section>
-                <section className="details-room">
-                  <div>
-                    <p className="eyebrow">Your room</p>
-                    <h2>{hotel.roomType}</h2>
-                    <p className="room-category">One room category at this property</p>
-                  </div>
-                  <div className="room-price">
-                    <strong>{formatPrice(hotel.pricePerNight)}</strong>
-                    <span>per night</span>
-                    {hotel.roomsLeft === 1 ? <em>Only 1 left</em> : hotel.available ? <span>{hotel.roomsLeft} rooms left</span> : <em>Sold out</em>}
+                <section className="room-options-section">
+                  <p className="eyebrow">Find your fit</p>
+                  <h2>Choose your room</h2>
+                  <div className="room-options" role="radiogroup" aria-label="Choose a room type">
+                    {hotel.rooms.map((room) => (
+                      <label
+                        className={`room-option ${selectedRoom?.roomId === room.roomId ? 'selected' : ''} ${!room.available ? 'unavailable' : ''}`}
+                        key={room.roomId}
+                      >
+                        <input
+                          type="radio"
+                          name="roomType"
+                          value={room.roomId}
+                          checked={selectedRoom?.roomId === room.roomId}
+                          disabled={!room.available}
+                          onChange={() => handleRoomSelect(room.roomId)}
+                        />
+                        <span className="room-option-content">
+                          <strong>{room.type}</strong>
+                          <span className="room-option-price">{formatPrice(room.pricePerNight)} <small>per night</small></span>
+                          {room.available ? (
+                            <span className={`room-option-left ${room.roomsLeft === 1 ? 'only-one' : ''}`}>
+                              {room.roomsLeft === 1 ? 'Only 1 left' : `${room.roomsLeft} rooms left`}
+                            </span>
+                          ) : <span className="room-option-sold">Sold out</span>}
+                        </span>
+                      </label>
+                    ))}
                   </div>
                 </section>
               </div>
@@ -132,7 +179,7 @@ function HotelDetailsPage() {
               <aside className="booking-sidebar">
                 <BookingForm
                   key={hotel.id}
-                  hotel={hotel}
+                  selectedRoom={selectedRoom}
                   initialCheckIn={checkIn}
                   initialCheckOut={checkOut}
                   onDatesChange={handleDatesChange}

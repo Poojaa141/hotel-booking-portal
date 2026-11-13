@@ -42,6 +42,7 @@ function HotelCard({ hotel, checkIn, checkOut }) {
   const amenities = hotel.amenities || []
   const shownAmenities = amenities.slice(0, 4)
   const remainingAmenities = amenities.length - shownAmenities.length
+  const roomTypes = (hotel.rooms || []).map((room) => room.type).join(' · ')
   const roomText = hotel.roomsLeft === 1 ? 'Only 1 left' : `${hotel.roomsLeft} rooms left`
 
   return (
@@ -76,10 +77,11 @@ function HotelCard({ hotel, checkIn, checkOut }) {
           {shownAmenities.map((amenity) => <span className="amenity-chip" key={amenity}>{amenity}</span>)}
           {remainingAmenities > 0 && <span className="amenity-more">+{remainingAmenities} more</span>}
         </div>
+        {roomTypes && <p className="room-type-list">{roomTypes}</p>}
 
         <div className="hotel-card-footer">
           <div className="price-line">
-            <span className="price">{formatPrice(hotel.pricePerNight)}</span>
+            <span className="price">From {formatPrice(hotel.startingPrice)}</span>
             <span className="per-night">/ night</span>
           </div>
           <span className={`rooms-left ${hotel.roomsLeft === 1 ? 'only-one' : ''}`}>

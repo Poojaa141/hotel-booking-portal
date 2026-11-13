@@ -3,12 +3,14 @@ package com.pooja.hotelbooking.service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.pooja.hotelbooking.dto.HotelResponse;
+import com.pooja.hotelbooking.dto.RoomOptionResponse;
 import com.pooja.hotelbooking.entity.Hotel;
 import com.pooja.hotelbooking.entity.Room;
 import com.pooja.hotelbooking.exception.BadRequestException;
@@ -59,15 +61,27 @@ public class HotelService {
     }
 
     private HotelResponse createResponse(Hotel hotel, LocalDate checkIn, LocalDate checkOut) {
-        Room room = roomRepository.findFirstByHotelIdOrderByIdAsc(hotel.getId())
-                .orElseThrow(() -> new IllegalStateException("Room not found for hotel"));
-
-        long overlappingBookings = 0;
-        if (checkIn != null && checkOut != null) {
-            overlappingBookings = bookingRepository.countOverlapping(room.getId(), checkIn, checkOut);
+        List<Room> hotelRooms = roomRepository.findAllByHotelIdOrderByIdAsc(hotel.getId());
+        if (hotelRooms.isEmpty()) {
+            throw new IllegalStateException("Room not found for hotel");
         }
 
-        int roomsLeft = (int) Math.max(0L, room.getTotalRooms() - overlappingBookings);
+        List<RoomOptionResponse> roomResponses = hotelRooms.stream()
+                .map(room -> createRoomResponse(room, checkIn, checkOut))
+                .sorted(Comparator.comparingInt(room -> roomTypeOrder(room.getType())))
+                .toList();
+        int roomsLeft = roomResponses.stream()
+                .mapToInt(RoomOptionResponse::getRoomsLeft)
+                .sum();
+        boolean available = roomResponses.stream().anyMatch(RoomOptionResponse::isAvailable);
+        BigDecimal startingPrice = roomResponses.stream()
+                .filter(RoomOptionResponse::isAvailable)
+                .map(RoomOptionResponse::getPricePerNight)
+                .min(BigDecimal::compareTo)
+                .orElseGet(() -> roomResponses.stream()
+                        .map(RoomOptionResponse::getPricePerNight)
+                        .min(BigDecimal::compareTo)
+                        .orElseThrow());
         List<String> amenities = hotel.getAmenities() == null || hotel.getAmenities().isBlank()
                 ? List.of()
                 : Arrays.stream(hotel.getAmenities().split(","))
@@ -82,25 +96,47 @@ public class HotelService {
                 hotel.getDescription(),
                 hotel.getImageUrl(),
                 amenities,
+                roomResponses,
+                startingPrice,
+                roomsLeft,
+                available);
+    }
+
+    private RoomOptionResponse createRoomResponse(Room room, LocalDate checkIn, LocalDate checkOut) {
+        long overlappingBookings = 0;
+        if (checkIn != null && checkOut != null) {
+            overlappingBookings = bookingRepository.countOverlapping(room.getId(), checkIn, checkOut);
+        }
+
+        int roomsLeft = (int) Math.max(0L, room.getTotalRooms() - overlappingBookings);
+        return new RoomOptionResponse(
                 room.getId(),
                 room.getRoomType(),
                 room.getPricePerNight(),
-                room.getTotalRooms(),
                 roomsLeft,
                 roomsLeft > 0);
+    }
+
+    private int roomTypeOrder(String type) {
+        return switch (type) {
+            case "Standard" -> 0;
+            case "Deluxe" -> 1;
+            case "Suite" -> 2;
+            default -> 3;
+        };
     }
 
     private void markBestDeal(List<HotelResponse> hotels) {
         BigDecimal lowestPrice = hotels.stream()
                 .filter(HotelResponse::isAvailable)
-                .map(HotelResponse::getPricePerNight)
+                .map(HotelResponse::getStartingPrice)
                 .min(BigDecimal::compareTo)
                 .orElse(null);
 
         for (HotelResponse hotel : hotels) {
             boolean bestDeal = lowestPrice != null
                     && hotel.isAvailable()
-                    && hotel.getPricePerNight().compareTo(lowestPrice) == 0;
+                    && hotel.getStartingPrice().compareTo(lowestPrice) == 0;
             hotel.setBestDeal(bestDeal);
         }
     }

@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -116,7 +115,7 @@ class HotelServiceTest {
     }
 
     private void stubAvailability(Hotel hotel, Room room, long overlappingBookings) {
-        when(roomRepository.findFirstByHotelIdOrderByIdAsc(hotel.getId())).thenReturn(Optional.of(room));
+        when(roomRepository.findAllByHotelIdOrderByIdAsc(hotel.getId())).thenReturn(List.of(room));
         when(bookingRepository.countOverlapping(eq(room.getId()), eq(checkIn), eq(checkOut)))
                 .thenReturn(overlappingBookings);
     }

@@ -1,6 +1,7 @@
 package com.pooja.hotelbooking.repository;
 
 import java.util.Optional;
+import java.util.List;
 
 import jakarta.persistence.LockModeType;
 
@@ -14,6 +15,8 @@ import com.pooja.hotelbooking.entity.Room;
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
     Optional<Room> findFirstByHotelIdOrderByIdAsc(Long hotelId);
+
+    List<Room> findAllByHotelIdOrderByIdAsc(Long hotelId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r FROM Room r WHERE r.id = :id")

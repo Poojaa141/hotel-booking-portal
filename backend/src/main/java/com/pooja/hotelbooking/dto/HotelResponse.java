@@ -11,10 +11,8 @@ public class HotelResponse {
     private String description;
     private String imageUrl;
     private List<String> amenities;
-    private Long roomId;
-    private String roomType;
-    private BigDecimal pricePerNight;
-    private int totalRooms;
+    private List<RoomOptionResponse> rooms;
+    private BigDecimal startingPrice;
     private int roomsLeft;
     private boolean available;
     private boolean bestDeal;
@@ -23,8 +21,7 @@ public class HotelResponse {
     }
 
     public HotelResponse(Long id, String name, String location, String description, String imageUrl,
-            List<String> amenities,
-            Long roomId, String roomType, BigDecimal pricePerNight, int totalRooms, int roomsLeft,
+            List<String> amenities, List<RoomOptionResponse> rooms, BigDecimal startingPrice, int roomsLeft,
             boolean available) {
         this.id = id;
         this.name = name;
@@ -32,10 +29,8 @@ public class HotelResponse {
         this.description = description;
         this.imageUrl = imageUrl;
         this.amenities = amenities;
-        this.roomId = roomId;
-        this.roomType = roomType;
-        this.pricePerNight = pricePerNight;
-        this.totalRooms = totalRooms;
+        this.rooms = rooms;
+        this.startingPrice = startingPrice;
         this.roomsLeft = roomsLeft;
         this.available = available;
     }
@@ -44,96 +39,40 @@ public class HotelResponse {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getImageUrl() {
         return imageUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
     public List<String> getAmenities() {
         return amenities;
     }
 
-    public void setAmenities(List<String> amenities) {
-        this.amenities = amenities;
+    public List<RoomOptionResponse> getRooms() {
+        return rooms;
     }
 
-    public Long getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(Long roomId) {
-        this.roomId = roomId;
-    }
-
-    public String getRoomType() {
-        return roomType;
-    }
-
-    public void setRoomType(String roomType) {
-        this.roomType = roomType;
-    }
-
-    public BigDecimal getPricePerNight() {
-        return pricePerNight;
-    }
-
-    public void setPricePerNight(BigDecimal pricePerNight) {
-        this.pricePerNight = pricePerNight;
-    }
-
-    public int getTotalRooms() {
-        return totalRooms;
-    }
-
-    public void setTotalRooms(int totalRooms) {
-        this.totalRooms = totalRooms;
+    public BigDecimal getStartingPrice() {
+        return startingPrice;
     }
 
     public int getRoomsLeft() {
         return roomsLeft;
     }
 
-    public void setRoomsLeft(int roomsLeft) {
-        this.roomsLeft = roomsLeft;
-    }
-
     public boolean isAvailable() {
         return available;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
     }
 
     public boolean isBestDeal() {

@@ -30,7 +30,7 @@ function getApiMessage(error) {
   return 'Cannot reach the server. Please try again'
 }
 
-function BookingForm({ hotel, initialCheckIn, initialCheckOut, onDatesChange, onRefreshHotel }) {
+function BookingForm({ selectedRoom, initialCheckIn, initialCheckOut, onDatesChange, onRefreshHotel }) {
   const [checkIn, setCheckIn] = useState(initialCheckIn)
   const [checkOut, setCheckOut] = useState(initialCheckOut)
   const [guestName, setGuestName] = useState('')
@@ -58,9 +58,14 @@ function BookingForm({ hotel, initialCheckIn, initialCheckOut, onDatesChange, on
   const trimmedEmail = guestEmail.trim()
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)
   const formValid = trimmedName.length >= 2 && emailValid && datesValid
+  const currentQuote = quote?.roomId === selectedRoom?.roomId
+    && quote?.checkIn === checkIn
+    && quote?.checkOut === checkOut
+    ? quote
+    : null
 
   useEffect(() => {
-    if (!datesValid || !hotel.roomId) {
+    if (!datesValid || !selectedRoom) {
       setQuote(null)
       setQuoteError('')
       setQuoteLoading(false)
@@ -72,7 +77,7 @@ function BookingForm({ hotel, initialCheckIn, initialCheckOut, onDatesChange, on
     setQuoteError('')
     setQuoteLoading(true)
 
-    getQuote({ roomId: hotel.roomId, checkIn, checkOut })
+    getQuote({ roomId: selectedRoom.roomId, checkIn, checkOut })
       .then((result) => {
         if (current) setQuote(result)
       })
@@ -86,7 +91,7 @@ function BookingForm({ hotel, initialCheckIn, initialCheckOut, onDatesChange, on
     return () => {
       current = false
     }
-  }, [checkIn, checkOut, datesValid, hotel.roomId, hotel.roomsLeft, hotel.available])
+  }, [checkIn, checkOut, datesValid, selectedRoom?.roomId])
 
   function updateDates(nextCheckIn, nextCheckOut) {
     setCheckIn(nextCheckIn)
@@ -118,12 +123,12 @@ function BookingForm({ hotel, initialCheckIn, initialCheckOut, onDatesChange, on
     setSubmitted(true)
     setBookingError('')
 
-    if (!formValid || !quote || !quote.available || bookingLoading) return
+    if (!formValid || !selectedRoom || !selectedRoom.available || !currentQuote?.available || bookingLoading) return
 
     setBookingLoading(true)
     try {
       const result = await createBooking({
-        roomId: hotel.roomId,
+        roomId: selectedRoom.roomId,
         guestName: trimmedName,
         guestEmail: trimmedEmail,
         checkIn,
@@ -141,14 +146,15 @@ function BookingForm({ hotel, initialCheckIn, initialCheckOut, onDatesChange, on
   if (booking) return <BookingConfirmation booking={booking} />
 
   const fieldErrors = getFieldErrors()
-  const soldOut = quote?.available === false || hotel.available === false
-  const canSubmit = formValid && Boolean(quote?.available) && !soldOut && !quoteLoading && !bookingLoading
+  const soldOut = selectedRoom?.available === false || currentQuote?.available === false
+  const canSubmit = formValid && Boolean(selectedRoom?.available) && Boolean(currentQuote?.available) && !soldOut && !quoteLoading && !bookingLoading
 
   return (
     <form className="booking-card" onSubmit={handleSubmit} noValidate>
       <div className="booking-card-heading">
         <p className="eyebrow">Make it yours</p>
         <h2>Reserve your stay</h2>
+        {selectedRoom && <p className="selected-room-name">{selectedRoom.type}</p>}
       </div>
 
       <div className="booking-fields">
@@ -177,11 +183,11 @@ function BookingForm({ hotel, initialCheckIn, initialCheckOut, onDatesChange, on
       {quoteLoading && <p className="quote-status" role="status">Calculating...</p>}
       {quoteError && <div className="inline-error" role="alert">{quoteError}</div>}
       {bookingError && <div className="inline-error" role="alert">{bookingError}</div>}
-      {quote && (
+      {currentQuote && (
         <div className="quote-summary" aria-live="polite">
-          <div><span>{formatPrice(quote.pricePerNight)} x {quote.nights} {quote.nights === 1 ? 'night' : 'nights'}</span><strong>{formatPrice(quote.totalAmount)}</strong></div>
-          <div className="quote-total"><span>Total</span><strong>{formatPrice(quote.totalAmount)}</strong></div>
-          {!quote.available && <p className="sold-out-message">No rooms available for the selected dates</p>}
+          <div><span>{selectedRoom?.type} · {formatPrice(currentQuote.pricePerNight)} x {currentQuote.nights} {currentQuote.nights === 1 ? 'night' : 'nights'}</span><strong>{formatPrice(currentQuote.totalAmount)}</strong></div>
+          <div className="quote-total"><span>Total</span><strong>{formatPrice(currentQuote.totalAmount)}</strong></div>
+          {!currentQuote.available && <p className="sold-out-message">No rooms available for the selected dates</p>}
         </div>
       )}
 

@@ -25,3 +25,27 @@ INSERT INTO rooms (hotel_id, room_type, price_per_night, total_rooms) VALUES
     (10, 'Deluxe', 3400.00, 4),
     (11, 'Deluxe', 3900.00, 6),
     (12, 'Deluxe', 4300.00, 4);
+
+INSERT INTO rooms (hotel_id, room_type, price_per_night, total_rooms) VALUES
+    (1, 'Standard', 3500.00, 5),
+    (1, 'Suite', 6300.00, 2),
+    (2, 'Deluxe', 3600.00, 3),
+    (2, 'Suite', 5000.00, 1),
+    (3, 'Standard', 5000.00, 5),
+    (3, 'Suite', 9000.00, 2),
+    (4, 'Deluxe', 4200.00, 4),
+    (4, 'Suite', 5800.00, 2),
+    (6, 'Deluxe', 3900.00, 4),
+    (6, 'Suite', 5400.00, 1),
+    (7, 'Standard', 4000.00, 5),
+    (7, 'Suite', 7200.00, 2),
+    (8, 'Standard', 2900.00, 5),
+    (8, 'Suite', 5200.00, 1),
+    (9, 'Standard', 3200.00, 5),
+    (9, 'Suite', 5800.00, 1),
+    (10, 'Standard', 2900.00, 5),
+    (10, 'Suite', 5200.00, 1),
+    (11, 'Standard', 3000.00, 5),
+    (11, 'Suite', 5400.00, 1),
+    (12, 'Standard', 3300.00, 5),
+    (12, 'Suite', 5900.00, 2);

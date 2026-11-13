@@ -363,6 +363,12 @@
   gap: 6px;
 }
 
+.room-type-list {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .amenity-chip,
 .amenity-more {
   padding: 5px 9px;
@@ -558,7 +564,6 @@
 }
 
 .details-section,
-.details-room,
 .booking-card,
 .confirmation-card,
 .details-message {
@@ -582,7 +587,6 @@
 }
 
 .details-section h2,
-.details-room h2,
 .booking-card h2,
 .confirmation-card h2 {
   margin: 0;
@@ -612,37 +616,104 @@
   font-size: 13px;
 }
 
-.details-room {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
+.room-options-section {
   padding: 25px 27px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 5px 16px rgba(43, 33, 24, 0.06);
 }
 
-.room-category {
-  margin: 8px 0 0;
-  color: var(--muted);
+.room-options-section h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--heading);
+  font-size: 26px;
+  font-weight: 600;
 }
 
-.room-price {
+.room-options {
   display: grid;
-  justify-items: end;
+  gap: 10px;
+  margin-top: 17px;
+}
+
+.room-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.room-option.selected {
+  padding: 14px;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+}
+
+.room-option.unavailable {
+  cursor: not-allowed;
+  opacity: 0.74;
+}
+
+.room-option input {
+  width: 17px;
+  height: 17px;
+  margin: 3px 0 0;
+  accent-color: var(--accent);
+}
+
+.room-option:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.room-option-content {
+  display: grid;
   gap: 3px;
+}
+
+.room-option-content > strong {
+  color: var(--ink);
+  font-family: var(--heading);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.room-option-price {
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.room-option-price small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.room-option-left,
+.room-option-sold {
   color: var(--muted);
   font-size: 13px;
-  text-align: right;
 }
 
-.room-price strong {
-  color: var(--accent);
-  font-size: 22px;
-}
-
-.room-price em {
+.room-option-left.only-one,
+.room-option-sold {
   color: var(--danger);
-  font-style: normal;
-  font-weight: 800;
+  font-weight: 700;
+}
+
+.selected-room-name {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .booking-sidebar {
@@ -1358,16 +1429,6 @@
 
   .details-deal {
     display: none;
-  }
-
-  .details-room {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .room-price {
-    justify-items: start;
-    text-align: left;
   }
 
   .booking-card,
