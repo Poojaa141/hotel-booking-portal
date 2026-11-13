@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { formatDate } from '../utils/format.js'
 
 function formatPrice(amount) {
   return new Intl.NumberFormat('en-IN', {
@@ -37,7 +38,7 @@ function BookingConfirmation({ booking }) {
       </div>
       <dl className="confirmation-details">
         <div><dt>Hotel</dt><dd>{booking.hotelName}</dd></div>
-        <div><dt>Dates</dt><dd>{booking.checkIn} to {booking.checkOut}</dd></div>
+        <div><dt>Dates</dt><dd>{formatDate(booking.checkIn)} to {formatDate(booking.checkOut)}</dd></div>
         <div><dt>Nights</dt><dd>{booking.nights}</dd></div>
         <div><dt>Total amount</dt><dd>{formatPrice(booking.totalAmount)}</dd></div>
         <div><dt>Guest</dt><dd>{booking.guestName}</dd></div>
@@ -47,7 +48,7 @@ function BookingConfirmation({ booking }) {
       <p className="reference-note">Keep your reference and email. You will need both to view or cancel your booking.</p>
       <div className="confirmation-actions">
         <Link className="primary-button" to="/">Back to home</Link>
-        <Link className="secondary-button" to="/manage">Manage a booking</Link>
+        <Link className="secondary-button" to={`/manage?ref=${encodeURIComponent(booking.bookingRef)}`}>Manage a booking</Link>
       </div>
     </section>
   )

@@ -136,14 +136,6 @@ function HomePage() {
 
   return (
     <>
-      <header className="site-header">
-        <div className="header-inner">
-          <Link className="brand" to="/" aria-label="Stayly home">
-            Stayly
-          </Link>
-        </div>
-      </header>
-
       <section className="hero">
         <div className="hero-inner">
           <h1>Find your perfect stay</h1>

@@ -73,11 +73,6 @@ function HotelDetailsPage() {
 
   return (
     <>
-      <header className="site-header">
-        <div className="header-inner">
-          <Link className="brand" to="/" aria-label="Stayly home">Stayly</Link>
-        </div>
-      </header>
       <main className="details-page">
         <Link className="back-link" to="/">Back to results</Link>
 

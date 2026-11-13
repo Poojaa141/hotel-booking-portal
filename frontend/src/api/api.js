@@ -44,3 +44,17 @@ export async function createBooking(request) {
   const response = await api.post('/bookings', request)
   return response.data
 }
+
+export async function getBooking(ref, email) {
+  const response = await api.get(`/bookings/${encodeURIComponent(ref)}`, {
+    params: { email },
+  })
+  return response.data
+}
+
+export async function cancelBooking(ref, email) {
+  const response = await api.put(`/bookings/${encodeURIComponent(ref)}/cancel`, null, {
+    params: { email },
+  })
+  return response.data
+}
