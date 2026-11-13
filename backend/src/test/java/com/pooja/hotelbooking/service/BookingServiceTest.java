@@ -2,6 +2,7 @@ package com.pooja.hotelbooking.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -49,7 +51,7 @@ class BookingServiceTest {
         // Arrange
         LocalDate checkIn = LocalDate.now().plusDays(1);
         LocalDate checkOut = checkIn.plusDays(3);
-        Room room = createRoom(10L, 5, "2000.00");
+        Room room = createRoom(10L, 5, "4500.00");
         QuoteRequest request = createQuoteRequest(10L, checkIn, checkOut);
         when(roomRepository.findById(10L)).thenReturn(Optional.of(room));
         when(bookingRepository.countOverlapping(10L, checkIn, checkOut)).thenReturn(0L);
@@ -59,7 +61,7 @@ class BookingServiceTest {
 
         // Assert
         assertEquals(3, response.getNights());
-        assertEquals(new BigDecimal("6000.00"), response.getTotalAmount());
+        assertEquals(new BigDecimal("13500.00"), response.getTotalAmount());
     }
 
     @Test
@@ -116,6 +118,46 @@ class BookingServiceTest {
     }
 
     @Test
+    void createBooking_calculatesTotalAndNormalizesGuestData() {
+        LocalDate checkIn = LocalDate.now().plusDays(1);
+        LocalDate checkOut = checkIn.plusDays(3);
+        Room room = createRoom(10L, 5, "4500.00");
+        BookingRequest request = createBookingRequest(10L, checkIn, checkOut);
+        request.setGuestName("  Guest Test  ");
+        request.setGuestEmail("  Guest@Example.COM  ");
+        when(roomRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(room));
+        when(bookingRepository.countOverlapping(10L, checkIn, checkOut)).thenReturn(0L);
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        BookingResponse response = bookingService.createBooking(request);
+
+        ArgumentCaptor<Booking> savedBooking = ArgumentCaptor.forClass(Booking.class);
+        verify(bookingRepository).save(savedBooking.capture());
+        assertEquals(new BigDecimal("13500.00"), response.getTotalAmount());
+        assertEquals(new BigDecimal("13500.00"), savedBooking.getValue().getTotalAmount());
+        assertEquals(BookingStatus.CONFIRMED, savedBooking.getValue().getStatus());
+        assertEquals("Guest Test", savedBooking.getValue().getGuestName());
+        assertEquals("guest@example.com", savedBooking.getValue().getGuestEmail());
+        assertTrue(savedBooking.getValue().getBookingRef().startsWith("HB-"));
+    }
+
+    @Test
+    void createBooking_succeedsWhenOverlappingIsBelowTotalRooms() {
+        LocalDate checkIn = LocalDate.now().plusDays(2);
+        LocalDate checkOut = checkIn.plusDays(2);
+        Room room = createRoom(10L, 2, "4500.00");
+        when(roomRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(room));
+        when(bookingRepository.countOverlapping(10L, checkIn, checkOut)).thenReturn(1L);
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        BookingResponse response = bookingService.createBooking(createBookingRequest(10L, checkIn, checkOut));
+
+        assertEquals(BookingStatus.CONFIRMED, response.getStatus());
+        assertEquals(2, response.getNights());
+        verify(bookingRepository).save(any(Booking.class));
+    }
+
+    @Test
     void cancelConfirmedBooking_setsCancelledAndDoesNotDelete() {
         LocalDate checkIn = LocalDate.now().plusDays(1);
         LocalDate checkOut = checkIn.plusDays(3);
@@ -148,14 +190,31 @@ class BookingServiceTest {
     }
 
     @Test
+    void cancelBookingWithPastCheckIn_throwsBadRequestException() {
+        LocalDate checkIn = LocalDate.now().minusDays(1);
+        Booking booking = createBooking("HB-TEST1234", BookingStatus.CONFIRMED,
+                checkIn, LocalDate.now().plusDays(1));
+        when(bookingRepository.findByBookingRefAndGuestEmail("HB-TEST1234", "guest@test.com"))
+                .thenReturn(Optional.of(booking));
+
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> bookingService.cancelBooking("HB-TEST1234", "guest@test.com"));
+
+        assertEquals("Cannot cancel a booking whose check-in date has already passed", exception.getMessage());
+        verify(bookingRepository, never()).save(any(Booking.class));
+    }
+
+    @Test
     void getOrCancel_wrongReferenceOrEmail_throwsNotFoundException() {
         when(bookingRepository.findByBookingRefAndGuestEmail(any(String.class), any(String.class)))
                 .thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class,
+        NotFoundException wrongReference = assertThrows(NotFoundException.class,
                 () -> bookingService.getBooking("wrong-ref", "guest@test.com"));
-        assertThrows(NotFoundException.class,
+        NotFoundException wrongEmail = assertThrows(NotFoundException.class,
                 () -> bookingService.getBooking("HB-TEST1234", "wrong@test.com"));
+        assertEquals("Booking not found. Please check your reference and email", wrongReference.getMessage());
+        assertEquals(wrongReference.getMessage(), wrongEmail.getMessage());
         assertThrows(NotFoundException.class,
                 () -> bookingService.cancelBooking("wrong-ref", "guest@test.com"));
         assertThrows(NotFoundException.class,
