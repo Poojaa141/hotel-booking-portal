@@ -1,5 +1,6 @@
 package com.pooja.hotelbooking.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -42,9 +43,11 @@ public class HotelService {
             hotels = hotelRepository.findAllByLocationContainingIgnoreCase(location);
         }
 
-        return hotels.stream()
+        List<HotelResponse> responses = hotels.stream()
                 .map(hotel -> createResponse(hotel, checkIn, checkOut))
                 .toList();
+        markBestDeal(responses);
+        return responses;
     }
 
     public HotelResponse getHotel(Long id, LocalDate checkIn, LocalDate checkOut) {
@@ -84,6 +87,21 @@ public class HotelService {
                 room.getTotalRooms(),
                 roomsLeft,
                 roomsLeft > 0);
+    }
+
+    private void markBestDeal(List<HotelResponse> hotels) {
+        BigDecimal lowestPrice = hotels.stream()
+                .filter(HotelResponse::isAvailable)
+                .map(HotelResponse::getPricePerNight)
+                .min(BigDecimal::compareTo)
+                .orElse(null);
+
+        for (HotelResponse hotel : hotels) {
+            boolean bestDeal = lowestPrice != null
+                    && hotel.isAvailable()
+                    && hotel.getPricePerNight().compareTo(lowestPrice) == 0;
+            hotel.setBestDeal(bestDeal);
+        }
     }
 
     private void validateDates(LocalDate checkIn, LocalDate checkOut) {

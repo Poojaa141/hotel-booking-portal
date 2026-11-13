@@ -16,6 +16,7 @@ public class HotelResponse {
     private int totalRooms;
     private int roomsLeft;
     private boolean available;
+    private boolean bestDeal;
 
     public HotelResponse() {
     }
@@ -122,5 +123,13 @@ public class HotelResponse {
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    public boolean isBestDeal() {
+        return bestDeal;
+    }
+
+    public void setBestDeal(boolean bestDeal) {
+        this.bestDeal = bestDeal;
     }
 }
