@@ -15,6 +15,7 @@ import com.pooja.hotelbooking.exception.NotFoundException;
 import com.pooja.hotelbooking.repository.BookingRepository;
 import com.pooja.hotelbooking.repository.HotelRepository;
 import com.pooja.hotelbooking.repository.RoomRepository;
+import com.pooja.hotelbooking.util.DateValidator;
 
 @Service
 @Transactional(readOnly = true)
@@ -92,11 +93,6 @@ public class HotelService {
         if (checkIn == null || checkOut == null) {
             throw new BadRequestException("Please provide both check-in and check-out dates");
         }
-        if (!checkOut.isAfter(checkIn)) {
-            throw new BadRequestException("Check-out date must be after check-in date");
-        }
-        if (checkIn.isBefore(LocalDate.now())) {
-            throw new BadRequestException("Check-in date cannot be in the past");
-        }
+        DateValidator.validateDates(checkIn, checkOut);
     }
 }

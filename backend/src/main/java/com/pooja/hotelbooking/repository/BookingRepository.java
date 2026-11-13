@@ -10,6 +10,8 @@ import com.pooja.hotelbooking.entity.Booking;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
+    boolean existsByBookingRef(String bookingRef);
+
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.room.id = :roomId AND b.status = com.pooja.hotelbooking.entity.BookingStatus.CONFIRMED AND b.checkIn < :checkOut AND b.checkOut > :checkIn")
     long countOverlapping(@Param("roomId") Long roomId,
             @Param("checkIn") LocalDate checkIn,
